@@ -8,15 +8,11 @@ app.use(bodyParser.json());
 
 app.use(cors());
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
-
 app.get("/products", (req, res) => {
-  console.log("QUERY:", req.query);
+  console.log("QUERY:", req.query.search);
   const search = req.query.search;
   fs.readFile("products.json", (err, data) => {
-    const products = JSON.parse(data);
+    products = JSON.parse(data);
     if (search) {
       const filteredproducts = products.filter((product) =>
         product.title.includes(search)
@@ -24,6 +20,7 @@ app.get("/products", (req, res) => {
       res.send(filteredproducts);
     } else {
       res.send(products);
+      console.log(products);
     }
   });
 });
@@ -48,6 +45,7 @@ app.delete("/products/:id", (req, res) => {
     const productIndex = products.findIndex(
       (product) => product.id === productId
     );
+    console.log(productIndex);
     products.splice(productIndex, 1);
     fs.writeFile("products.json", JSON.stringify(products), (err) => {
       res.send("YOU SUCCEED!!!");
@@ -62,7 +60,9 @@ app.put("/products/:id", (req, res) => {
     const productIndex = products.findIndex(
       (product) => product.id === productId
     );
-    products[productIndex].title = req.body.title;
+    console.log(req.body);
+    const ceng = req.body;
+    products[productIndex] = { ...products[productIndex], ...ceng };
     fs.writeFile("products.json", JSON.stringify(products), (err) => {
       res.send("YOU SUCCEED!!!");
     });
