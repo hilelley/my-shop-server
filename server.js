@@ -20,7 +20,6 @@ const JSON_FILE = process.env.JSON_FILE ? process.env.JSON_FILE : JSON_FILE;
 
 app.get("/products", (req, res) => {
   const search = req.query.search;
-  const query = req.query;
   fs.readFile(JSON_FILE, (err, data) => {
     products = JSON.parse(data);
     if (search) {
@@ -28,8 +27,6 @@ app.get("/products", (req, res) => {
         product.title.includes(search)
       );
       res.send(filteredproducts);
-      // } else if (JSON.stringify(query) === JSON.stringify({ search: "" })) {
-      //   res.send([]);
     } else {
       res.send(products);
     }
@@ -93,6 +90,12 @@ app.put("/products/:id", (req, res) => {
     });
   }
 });
+app.post("/upload", (req, res) => {
+  req.pipe(fs.createWriteStream(`images/${req.query.filename}`));
+  res.send("כל הכבוד העלת קובץ ורשמת אותו בתוך תיקיית תמונות");
+});
+
+app.use("/images", express.static("images"));
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
