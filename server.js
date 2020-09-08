@@ -7,6 +7,7 @@ const dotenv = require("dotenv");
 const path = require("path");
 const mongoose = require("mongoose");
 const morgan = require("morgan");
+const Schema = require("mongoose");
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -29,7 +30,6 @@ const http = require("http");
 const socketIo = require("socket.io");
 const server = http.createServer(app);
 const io = socketIo(server);
-
 // mongodb
 
 const productSchema = new mongoose.Schema({
@@ -55,7 +55,28 @@ const productSchema = new mongoose.Schema({
   },
 });
 
+const cartSchema = new mongoose.Schema({
+  useName: {
+    type: String,
+    required: true,
+  },
+  items: [{ type: Schema.Types.ObjectId, ref: "Product" }],
+  TotalCost: {
+    type: Number,
+    required: true,
+  },
+  kosherPesach: {
+    type: Boolean,
+    required: true,
+  },
+  paid: {
+    type: Boolean,
+    required: true,
+  },
+});
+
 const Product = mongoose.model("Product", productSchema);
+const Cart = mongoose.model("Cart", cartSchema);
 
 app.get("/products", (req, res) => {
   const search = req.query.search;
@@ -211,6 +232,33 @@ function connectDB() {
 }
 
 connectDB().then(async () => {
+  // const product1 = await Product.find({ id: 1 });
+  // const product2 = await Product.find({ id: 2 });
+  // const product3 = await Product.find({ id: 3 });
+
+  // const cart1 = new Cart({
+  //   useName: "hilel",
+  //   items: [product1[0]._id, product2[0]._id, product3[0]._id],
+  //   TotalCost: 300,
+  //   kosherPesach: false,
+  //   paid: false,
+  // });
+  // await cart1.save();
+
+  // const cart1 = await Cart.findOne().exec();
+
+  const cart = await Cart.findOne().populate("items").exec();
+
+  console.log(
+    "Cart itmes 1: ",
+    cart.items[0],
+    "Cart itmes 2: ",
+    cart.items[1],
+    "Cart itmes 3: ",
+    cart.items[2]
+  );
+
+  // console.log(fullCart1);
   server.listen(PORT, () => {
     console.log(`Example app listening on port ${PORT}!`);
   });
